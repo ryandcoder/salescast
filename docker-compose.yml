@@ -1,0 +1,43 @@
+# Three services: PostgreSQL, the FastAPI backend, and the React frontend (nginx).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-salescast}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-salescast}
+      POSTGRES_DB: ${POSTGRES_DB:-salescast}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-salescast} -d ${POSTGRES_DB:-salescast}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-salescast}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-salescast}
+      POSTGRES_DB: ${POSTGRES_DB:-salescast}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      DATA_PATH: /data/sales.csv
+      REPORT_PATH: /data/data_quality_report.json
+    volumes:
+      - ./data:/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

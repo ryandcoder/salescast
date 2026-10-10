@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens. Values come from the validated reference palette; dark mode is its own set of steps.
+   The media query follows the OS; [data-theme] is the viewer's toggle and wins both ways. */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --ghost: rgba(11, 11, 11, 0.05);
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --s4: #eda100;
+  --good-text: #006300;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --ghost: rgba(255, 255, 255, 0.07);
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --good-text: #0ca30c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --ghost: rgba(255, 255, 255, 0.07);
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --s4: #c98500;
+  --good-text: #0ca30c;
+}
+
+body {
+  @apply bg-page text-ink font-sans antialiased;
+}
+
+@layer components {
+  .card {
+    @apply min-w-0 rounded-xl border border-edge bg-surface p-4 sm:p-5;
+  }
+  .card-title {
+    @apply text-base font-semibold text-ink;
+  }
+  .hint {
+    @apply text-sm text-ink-2;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md border border-edge bg-surface px-3 py-1.5 text-sm text-ink hover:bg-ghost disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-s1;
+  }
+  .field {
+    @apply rounded-md border border-edge bg-surface px-2.5 py-1.5 text-sm text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-s1;
+  }
+  .th {
+    @apply whitespace-nowrap border-b border-edge px-3 py-2 text-xs font-medium text-ink-2;
+  }
+  .td {
+    @apply border-b border-edge px-3 py-2 text-sm text-ink;
+  }
+}
