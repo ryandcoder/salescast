@@ -30,7 +30,7 @@ export function FilterBar(props: { options: FilterOptions | null; filters: Filte
   const products = (options?.products ?? []).filter((p) => !filters.category || p.category === filters.category)
 
   return (
-    <div className="sticky top-0 z-20 border-b border-edge bg-page">
+    <div className="sticky top-0 z-20 border-b border-edge bg-page print:hidden">
       <div className="mx-auto flex max-w-7xl flex-wrap items-end gap-3 px-4 py-3 sm:px-6">
         <Field label="From">
           <input type="date" className="field" value={filters.date_from} min={options?.date_min ?? undefined} max={options?.date_max ?? undefined} onChange={(e) => set({ date_from: e.target.value })} />

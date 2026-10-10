@@ -45,12 +45,33 @@ function useTheme() {
   return { dark, toggle: () => setDark((d) => !d) }
 }
 
+// Names the PDF "SalesCast report <date>" in the browser's print dialog, then restores the page title.
+function usePrintTitle() {
+  useEffect(() => {
+    let original = document.title
+    const before = () => {
+      original = document.title
+      document.title = `${APP_NAME} report ${new Date().toISOString().slice(0, 10)}`
+    }
+    const after = () => {
+      document.title = original
+    }
+    window.addEventListener('beforeprint', before)
+    window.addEventListener('afterprint', after)
+    return () => {
+      window.removeEventListener('beforeprint', before)
+      window.removeEventListener('afterprint', after)
+    }
+  }, [])
+}
+
 function groupBars(items: GroupItem[] | undefined, extra: (i: GroupItem) => string) {
   return (items ?? []).map((i) => ({ name: i.name, value: i.revenue, label: `${money(i.revenue)} (${pct(i.pct_of_revenue)})`, sub: extra(i) }))
 }
 
 export default function Dashboard() {
   const theme = useTheme()
+  usePrintTitle()
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [metric, setMetric] = useState<Metric>('revenue')
   const [granularity, setGranularity] = useState<Granularity>('month')
@@ -85,18 +106,25 @@ export default function Dashboard() {
             <p className="hint">Historical sales, a tested forecast, and what to prepare for.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <nav aria-label="Sections" className="hidden gap-3 text-sm md:flex">
+            <nav aria-label="Sections" className="hidden gap-3 text-sm md:flex print:hidden">
               {NAV.map(([id, label]) => (
                 <a key={id} href={`#${id}`} className="text-ink-2 hover:text-ink hover:underline">
                   {label}
                 </a>
               ))}
             </nav>
-            <button type="button" className="btn" aria-pressed={theme.dark} onClick={theme.toggle}>
+            <button type="button" className="btn print:hidden" aria-pressed={theme.dark} onClick={theme.toggle}>
               {theme.dark ? 'Light theme' : 'Dark theme'}
+            </button>
+            <button type="button" className="btn print:hidden" onClick={() => window.print()} title="Opens your browser's print dialog. Choose 'Save as PDF' as the destination.">
+              Print / Save as PDF
             </button>
           </div>
         </div>
+        <p className="mx-auto hidden max-w-7xl px-4 pb-2 text-sm text-ink-2 print:block sm:px-6">
+          Report generated {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+          {isFiltered(filters) ? ` - filtered: ${Object.entries(filters).filter(([, v]) => v).map(([k, v]) => `${k.replace('_', ' ')} ${v}`).join(', ')}` : ' - all sales'}
+        </p>
         {DATASET_NOTE && (
           <div className="mx-auto max-w-7xl px-4 pb-3 sm:px-6">
             <Notice title="Demo data">{DATASET_NOTE}</Notice>
@@ -194,7 +222,9 @@ export default function Dashboard() {
 
         <Section id="data" title="Sales data" description="Every order behind these numbers.">
           <div className="space-y-4">
-            <SalesTable filters={filters} />
+            <div className="print:hidden">
+              <SalesTable filters={filters} />
+            </div>
             <details>
               <summary className="card-title cursor-pointer">Data quality summary</summary>
               <div className="mt-3">

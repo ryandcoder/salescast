@@ -1,4 +1,5 @@
 // Typed client for the SalesCast API. Field names mirror the backend JSON exactly.
+import { API_BASE } from '../config'
 
 export interface Filters {
   date_from: string
@@ -257,7 +258,7 @@ function qs(p: Params): string {
 }
 
 async function get<T>(path: string, params: Params = {}, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`/api${path}${qs(params)}`, { signal })
+  const res = await fetch(`${API_BASE}/api${path}${qs(params)}`, { signal })
   if (!res.ok) {
     let detail = ''
     try {

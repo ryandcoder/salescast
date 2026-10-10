@@ -9,8 +9,10 @@ from sqlalchemy.engine import Engine
 from app.analytics.cleaning import clean_sales
 
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
-DATA_PATH = Path(os.getenv("DATA_PATH", "/data/sales.csv"))
-REPORT_PATH = Path(os.getenv("REPORT_PATH", "/data/data_quality_report.json"))
+# Defaults to <repo>/data (in the Docker image that resolves to /data, which compose mounts).
+_DATA_DIR = Path(__file__).resolve().parents[3] / "data"
+DATA_PATH = Path(os.getenv("DATA_PATH", _DATA_DIR / "sales.csv"))
+REPORT_PATH = Path(os.getenv("REPORT_PATH", _DATA_DIR / "data_quality_report.json"))
 
 
 def init_database(engine: Engine) -> None:
@@ -29,6 +31,9 @@ def init_database(engine: Engine) -> None:
     clean.to_sql("sales", engine, if_exists="append", index=False,
                  chunksize=2000, method="multi")
 
-    REPORT_PATH.write_text(json.dumps(report, indent=2))
+    try:
+        REPORT_PATH.write_text(json.dumps(report, indent=2))
+    except OSError as exc:  # read-only or temporary disk: the API rebuilds the report on request
+        print(f"[loader] could not save the data-quality report ({exc}); it will be rebuilt on demand.")
     print(f"[loader] loaded {len(clean):,} rows "
           f"({report['records_removed']} removed during cleaning).")

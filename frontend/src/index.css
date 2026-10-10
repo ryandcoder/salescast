@@ -85,3 +85,44 @@ body {
     @apply border-b border-edge px-3 py-2 text-sm text-ink;
   }
 }
+
+/* Print / Save as PDF. Always print in the light palette, even if the viewer is in dark mode,
+   keep each card and section heading together on one page, and keep chart colors. */
+@media print {
+  :root:root:root {
+    color-scheme: light;
+    --page: #ffffff;
+    --surface: #ffffff;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.18);
+    --ghost: rgba(11, 11, 11, 0.05);
+    --s1: #2a78d6;
+    --s2: #eb6834;
+    --s3: #1baf7a;
+    --s4: #eda100;
+    --good-text: #006300;
+  }
+  html,
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff;
+  }
+  .card,
+  figure,
+  table,
+  tr {
+    break-inside: avoid;
+  }
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  @page {
+    margin: 12mm;
+  }
+}

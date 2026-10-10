@@ -1,0 +1,29 @@
+# Render Blueprint: the API and its PostgreSQL database. The React site is deployed on Vercel (see README).
+services:
+  - type: web
+    name: salescast-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL
+        fromDatabase:
+          name: salescast-db
+          property: connectionString
+      # Set after the first Vercel deploy, e.g. https://salescast.vercel.app (no trailing slash).
+      - key: CORS_ORIGINS
+        sync: false
+      # Optional: let Vercel preview deployments call the API too.
+      # - key: CORS_ORIGIN_REGEX
+      #   value: https://salescast-.*\.vercel\.app
+
+databases:
+  - name: salescast-db
+    plan: free
+    databaseName: salescast
+    user: salescast
+    ipAllowList: []

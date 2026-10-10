@@ -6,6 +6,13 @@ from sqlalchemy.engine import Engine
 
 
 def database_url() -> str:
+    # Hosted platforms (Render, Railway, Heroku) hand over one DATABASE_URL; use it when present.
+    url = os.getenv("DATABASE_URL")
+    if url:
+        for prefix in ("postgres://", "postgresql://"):
+            if url.startswith(prefix):
+                return "postgresql+psycopg2://" + url[len(prefix):]
+        return url
     user = os.getenv("POSTGRES_USER", "salescast")
     password = os.getenv("POSTGRES_PASSWORD", "salescast")
     host = os.getenv("POSTGRES_HOST", "localhost")

@@ -235,3 +235,19 @@ salescast/
 - Multiple forecasting models, compared on the same test window
 - Automated retraining when new data arrives
 - More advanced inventory planning
+
+## Deployment: Render (API + database) and Vercel (website)
+
+The API and its PostgreSQL database run on Render; the React site runs on Vercel and calls the API directly.
+
+1. **Push to GitHub.** Commit and push this repository.
+2. **Render:** *New > Blueprint*, pick the repository. `render.yaml` creates the `salescast-api` web service and the `salescast-db` database, and wires `DATABASE_URL`. When asked for `CORS_ORIGINS`, enter a placeholder for now. The first start loads `data/sales.csv` into the database.
+3. **Check the API:** open `https://<your-api>.onrender.com/api/health`. It should return `{"status":"ok","sales_rows":19228}`.
+4. **Vercel:** *Add New > Project*, import the repository, and set **Root Directory** to `frontend`. Add the environment variable `VITE_API_URL=https://<your-api>.onrender.com` (no trailing slash) and deploy.
+5. **Allow the site to call the API:** in Render, set `CORS_ORIGINS=https://<your-site>.vercel.app` and let the service redeploy.
+
+Notes: `VITE_API_URL` is read when the site is built, so redeploy on Vercel after changing it. On Render's free plan the API sleeps after 15 idle minutes (the first request then takes about a minute) and free databases expire after 30 days.
+
+## Print / Save as PDF
+
+The **Print / Save as PDF** button in the header opens the browser's print dialog; choose *Save as PDF*. The PDF always uses the light theme, leaves out the filter bar and the paginated orders table, and is named `SalesCast report <date>`.
