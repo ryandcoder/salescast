@@ -1,4 +1,4 @@
-# Render Blueprint: the API and its PostgreSQL database. The React site is deployed on Vercel (see README).
+# Render Blueprint: the API only. The database is Neon and the React site is on Vercel (see README).
 services:
   - type: web
     name: salescast-api
@@ -10,20 +10,12 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
+      # Neon connection string, e.g. postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
       - key: DATABASE_URL
-        fromDatabase:
-          name: salescast-db
-          property: connectionString
+        sync: false
       # Set after the first Vercel deploy, e.g. https://salescast.vercel.app (no trailing slash).
       - key: CORS_ORIGINS
         sync: false
       # Optional: let Vercel preview deployments call the API too.
       # - key: CORS_ORIGIN_REGEX
       #   value: https://salescast-.*\.vercel\.app
-
-databases:
-  - name: salescast-db
-    plan: free
-    databaseName: salescast
-    user: salescast
-    ipAllowList: []
